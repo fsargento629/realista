@@ -18,10 +18,10 @@ import (
 // STRUCTS
 
 type Listing struct {
-	name, bairro string
-	features     []string
-	lat, lon     float64
-	price        uint
+	name, bairro, energy_rating string
+	features                    []string
+	lat, lon                    float64
+	price, area, rooms          uint
 	// to implement: ID as a algbebraic enum
 	// area, Energy rating, number of rooms
 	//
@@ -117,17 +117,61 @@ func scrape_supercasa() []Listing {
 				log.Fatal("Price string to int conversion failed!")
 			}
 
+			// parse features from string to num of rooms, area, CE rating
+			// The features array always has therse values in order
+			// number of rooms
+			var rooms int
+			re = regexp.MustCompile(`(\d+) quarto`)
+			match = re.FindStringSubmatch(strings.Join(features, " "))
+			if len(match) == 2 {
+				rooms, err = strconv.Atoi(match[1])
+				if err != nil {
+					log.Fatal("Unable to parse number of rooms from string to int")
+				}
+			} else {
+				fmt.Println("Unable to find number of rooms in features")
+				rooms = 0
+			}
+
+			// area
+			var area int
+			re = regexp.MustCompile(`(\d+) m²`)
+			match = re.FindStringSubmatch(strings.Join(features, " "))
+			if len(match) == 2 {
+				area, err = strconv.Atoi(match[1])
+				if err != nil {
+					log.Fatal("Unable to parse area from string to int")
+				}
+			} else {
+				fmt.Println("Unable to find area in features")
+				area = 0
+			}
+
+			// energy rating
+			var energy_rating string
+			re = regexp.MustCompile(`C\.E\.: ?(\w)`)
+			match = re.FindStringSubmatch(strings.Join(features, " "))
+			if len(match) == 2 {
+				energy_rating = match[1]
+			} else {
+				fmt.Println("Unable to find energy rating in features")
+				energy_rating = "?"
+			}
+
+			// latitude conversion
 			latitudeF64, err := strconv.ParseFloat(latitude, 64)
 			if err != nil {
 				log.Fatal("Latitude string to float conversion failed!")
 			}
 
+			// longitude conversion
 			longitudeF64, err := strconv.ParseFloat(longitude, 64)
 			if err != nil {
 				log.Fatal("Longitude string to float conversion failed!")
 			}
 
-			listings = append(listings, Listing{name: propertyID, bairro: bairro.name, features: features, price: uint(propertyPriceInt), lat: latitudeF64, lon: longitudeF64})
+			// Finally, append this listing to the listing list
+			listings = append(listings, Listing{name: propertyID, bairro: bairro.name, features: features, energy_rating: energy_rating, price: uint(propertyPriceInt), rooms: uint(rooms), area: uint(area), lat: latitudeF64, lon: longitudeF64})
 			fmt.Println("----------------------------------------")
 		})
 		for i := 0; i < max_pages_per_bairro; i++ {
