@@ -1,8 +1,12 @@
 package main
 
+// ------------------------------------------------------
+// IMPORTS
 import (
+	"encoding/csv"
 	"fmt"
 	"log"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -10,23 +14,67 @@ import (
 	"github.com/gocolly/colly"
 )
 
+// ------------------------------------------------------
+// STRUCTS
+
 type Listing struct {
-	name     string
-	features []string
-	lat, lon float64
-	price    uint
+	name, bairro string
+	features     []string
+	lat, lon     float64
+	price        uint
+	// to implement: ID as a algbebraic enum
+	// area, Energy rating, number of rooms
+	//
+}
+
+type Bairro struct {
+	name, url string
+	// in the future this should also have data about the average price and other economic metrics
+}
+
+// ------------------------------------------------------
+// FUNCTIONS
+
+// returns the bairro info stored in config_files/bairros.csv
+// this is just name,url pairs so far
+func bairros2scrape() []Bairro {
+	var bairro_list []Bairro
+
+	// read csv file with bairro info and populate the array
+	// open file logic
+	file_name := "/home/fsargento/go/projects/realista/config_files/bairros.csv"
+	file, err := os.Open(file_name)
+	if err != nil {
+		log.Fatal("Error while opening the file!!", err)
+	}
+	defer file.Close()
+
+	// read the csv
+	reader := csv.NewReader(file)
+	lines, err := reader.ReadAll()
+	if err != nil {
+		log.Println("Error reading csv file!")
+	}
+	// convert each line to question, answer and push them to the vec
+	for _, line := range lines {
+		bairro_list = append(bairro_list, Bairro{name: line[0], url: line[1]})
+	}
+	fmt.Print("Got bairro list: ")
+	fmt.Println(bairro_list)
+	return bairro_list
 }
 
 func scrape_supercasa() []Listing {
 	fmt.Println("Scraping supercasa.pt")
-
-	// iterate through super casa website
-	// get all the listings for all the pages
-	max_pages2scrape := 50
 	var listings []Listing
-	for i := 0; i < max_pages2scrape; i++ {
+
+	// iterate thorugh each bairro
+	// each bairro has several pages, each with several listings
+	max_pages_per_bairro := 65
+	bairro_list := bairros2scrape()
+	for _, bairro := range bairro_list {
+		fmt.Println("On bairro:" + bairro.name)
 		c := colly.NewCollector()
-		url := "https://supercasa.pt/comprar-casas/lisboa/alvalade/pagina-" + strconv.Itoa(i)
 		c.OnHTML(".property", func(e *colly.HTMLElement) {
 			// Extract all text content within the current element
 			textContent := e.Text
@@ -79,20 +127,28 @@ func scrape_supercasa() []Listing {
 				log.Fatal("Longitude string to float conversion failed!")
 			}
 
-			listings = append(listings, Listing{name: propertyID, features: features, price: uint(propertyPriceInt), lat: latitudeF64, lon: longitudeF64})
+			listings = append(listings, Listing{name: propertyID, bairro: bairro.name, features: features, price: uint(propertyPriceInt), lat: latitudeF64, lon: longitudeF64})
 			fmt.Println("----------------------------------------")
 		})
+		for i := 0; i < max_pages_per_bairro; i++ {
 
-		// Visit the URL and start scraping
-		err := c.Visit(url)
-		if err != nil {
-			fmt.Println("scrape_supercasa scraped " + strconv.Itoa(i) + " pages")
-			fmt.Println(err)
-			break
+			url := bairro.url + "/pagina-" + strconv.Itoa(i)
+			// Visit the URL and start scraping
+			// Visit() starts the scraping process, whcih will call the on HTML callback we set up
+			err := c.Visit(url)
+			if err != nil {
+				fmt.Println("scrape_supercasa scraped " + strconv.Itoa(i) + " pages")
+				fmt.Println(err)
+				break
+			}
 		}
 	}
+
 	return listings
 }
+
+// ------------------------------------------------------
+// MAIN
 
 func main() {
 	fmt.Println("Welcome to realista!")
