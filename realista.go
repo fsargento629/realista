@@ -18,12 +18,10 @@ import (
 // STRUCTS
 
 type Listing struct {
-	name, bairro, energy_rating string
-	features                    []string
-	lat, lon                    float64
-	price, area, rooms          uint
-	// to implement: ID as a algbebraic enum
-	// area, Energy rating, number of rooms
+	bairro, energy_rating, source string
+	features                      []string
+	lat, lon                      float64
+	price, area, rooms, id        uint
 	//
 }
 
@@ -64,6 +62,8 @@ func bairros2scrape() []Bairro {
 	return bairro_list
 }
 
+// Scrapes supercasa.pt and returns an array of Listings.
+// The
 func scrape_supercasa() []Listing {
 	fmt.Println("Scraping supercasa.pt")
 	var listings []Listing
@@ -106,6 +106,12 @@ func scrape_supercasa() []Listing {
 			fmt.Printf("Property Features: %s\n", features)
 			fmt.Printf("Latitude: %s\n", latitude)
 			fmt.Printf("Longitude: %s\n", longitude)
+
+			// property id from string to uint
+			id, err := strconv.Atoi(strings.TrimPrefix(propertyID, "property_"))
+			if err != nil {
+				id = 0
+			}
 
 			// type conversions from string to int
 			propertyPrice = strings.Split(propertyPrice, "\n")[0]
@@ -171,7 +177,11 @@ func scrape_supercasa() []Listing {
 			}
 
 			// Finally, append this listing to the listing list
-			listings = append(listings, Listing{name: propertyID, bairro: bairro.name, features: features, energy_rating: energy_rating, price: uint(propertyPriceInt), rooms: uint(rooms), area: uint(area), lat: latitudeF64, lon: longitudeF64})
+			listings = append(listings, Listing{
+				id: uint(id), bairro: bairro.name, features: features, source: "super_casa",
+				energy_rating: energy_rating, price: uint(propertyPriceInt),
+				rooms: uint(rooms), area: uint(area),
+				lat: latitudeF64, lon: longitudeF64})
 			fmt.Println("----------------------------------------")
 		})
 		for i := 0; i < max_pages_per_bairro; i++ {
