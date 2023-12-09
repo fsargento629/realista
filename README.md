@@ -5,7 +5,6 @@ Webscraper for supercasa.pt written in go (WIP)
 
 ### Priority
 
-- Detect that page doesnt exist, so the loop can end with no errors
 - property id as a uint, not string
 - func to get area and E rating from features string
 - Iterate through all of lisbon (maybe just each neighbourhood?)

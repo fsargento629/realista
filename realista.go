@@ -22,7 +22,7 @@ func scrape_supercasa() []Listing {
 
 	// iterate through super casa website
 	// get all the listings for all the pages
-	max_pages2scrape := 5
+	max_pages2scrape := 50
 	var listings []Listing
 	for i := 0; i < max_pages2scrape; i++ {
 		c := colly.NewCollector()
@@ -86,10 +86,11 @@ func scrape_supercasa() []Listing {
 		// Visit the URL and start scraping
 		err := c.Visit(url)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println("scrape_supercasa scraped " + strconv.Itoa(i) + " pages")
+			fmt.Println(err)
+			break
 		}
 	}
-
 	return listings
 }
 
