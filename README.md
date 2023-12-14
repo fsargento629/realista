@@ -5,13 +5,14 @@ Webscraper for supercasa.pt written in go (WIP)
 
 ### Priority
 
-- Start python frontend code. 
-- Go function to create pandas dataframe (it does not have to be pandas)
+- GO to csv function
+- create python environment inside realista to analyze data.
+- Python library to handle csv to pandas and the cleanup
+
 
 
 ### Near future plans
 
-- Implement front end service
 - Populate csv with all of Lisbon
 - postgresql with go as the basis for storing ALL data about house prices at each day
 

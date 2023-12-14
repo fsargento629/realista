@@ -10,6 +10,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gocolly/colly"
 )
@@ -257,6 +258,57 @@ func print_listing(listing Listing) {
 
 }
 
+// create a csv file with all the listings
+func listings2csv(listings []Listing) {
+	currentTime := time.Now()
+	csvFileName := fmt.Sprintf("data/listings_%s.csv", currentTime.Format("2006_01_02_15_04_05"))
+
+	// Create or open the CSV file
+	file, err := os.Create(csvFileName)
+	if err != nil {
+		fmt.Println("Error creating CSV file:", err)
+		return
+	}
+	defer file.Close()
+
+	// Create a CSV writer
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	// Write the header to the CSV file
+	header := []string{"id", "price", "area", "rooms", "energyRating", "pricePerM2", "bairro", "priceOffset"}
+	err = writer.Write(header)
+	if err != nil {
+		fmt.Println("Error writing CSV header:", err)
+		return
+	}
+
+	// Write each listing to the CSV file
+	for _, listing := range listings {
+		row := []string{
+			fmt.Sprintf(
+				"%d,%d,%d,%d,%s,%.2f,%s,%.2f",
+				listing.id,
+				listing.price,
+				listing.area,
+				listing.rooms,
+				listing.energy_rating,
+				listing.price_per_m2,
+				listing.bairro,
+				listing.price_offset,
+			),
+		}
+
+		err := writer.Write(row)
+		if err != nil {
+			fmt.Println("Error writing CSV row:", err)
+			return
+		}
+	}
+
+	fmt.Printf("CSV file '%s' created successfully.\n", csvFileName)
+}
+
 // ------------------------------------------------------
 // MAIN
 
@@ -271,6 +323,6 @@ func main() {
 	print_listing(listings[40])
 	print_listing(listings[50])
 
-	fmt.Println("Out of scrape supercasa!\n-------------------------------------------")
-	fmt.Println(listings[len(listings)-1])
+	// convert data to csv
+	listings2csv(listings)
 }
