@@ -22,11 +22,13 @@ type Listing struct {
 	features                      []string
 	lat, lon                      float64
 	price, area, rooms, id        uint
-	//
+	// pos processing values
+	price_per_m2, price_offset float32 // price offet is 1 if it is the same, 2 if double, etc
 }
 
 type Bairro struct {
 	name, url string
+	// average_price_per_m2 float32
 	// in the future this should also have data about the average price and other economic metrics
 }
 
@@ -191,14 +193,68 @@ func scrape_supercasa() []Listing {
 			// Visit() starts the scraping process, whcih will call the on HTML callback we set up
 			err := c.Visit(url)
 			if err != nil {
-				fmt.Println("scrape_supercasa scraped " + strconv.Itoa(i) + " pages")
+				fmt.Println("scrape_supercasa scraped " + strconv.Itoa(i) + " pages from bairro " + bairro.name)
 				fmt.Println(err)
 				break
 			}
 		}
+		fmt.Printf("Scraped %d house from super_casa.pt", len(listings))
 	}
 
 	return listings
+}
+
+// add statistics to each listing
+// (price/m2, price offset to neighbourhood average (%), price offset to selection)
+// todo: this should also return the bairro data. we should have a struct for that. Maybe just reuse bairro.
+func post_processing(listings []Listing) []Listing {
+
+	var newListings []Listing
+	// price per area
+	for _, listing := range listings {
+		if listing.area > 0 {
+			listing.price_per_m2 = float32(listing.price / listing.area)
+			newListings = append(newListings, listing)
+		} else {
+			// remove listing if area is not positive.
+			fmt.Println("Listing " + strconv.FormatUint(uint64(listing.id), 10) + " had non-positive area")
+		}
+	}
+
+	// hasmaps to support mean calculation
+	bairro_average_ppm2s := make(map[string]float32)
+	bairro_counters := make(map[string]uint)
+	bairro_price_sum := make(map[string]uint)
+
+	// iterate all listing toget the total price sum for each bairro
+	for _, listing := range newListings {
+		bairro_price_sum[listing.bairro] += uint(listing.price_per_m2)
+		bairro_counters[listing.bairro]++
+	}
+	// divide price sums by counters to get averages
+	for bairro, price_sum := range bairro_price_sum {
+		bairro_average_ppm2s[bairro] = float32(float64(price_sum) / float64(bairro_counters[bairro]))
+		fmt.Printf("Bairro:%s | Average PPMsqr:%f\n", bairro, bairro_average_ppm2s[bairro])
+	}
+
+	// iterate new listings to get price offset to neighbourhood
+	for i, listing := range newListings {
+		newListings[i].price_offset = listing.price_per_m2 / bairro_average_ppm2s[listing.bairro]
+	}
+
+	return newListings
+
+}
+
+// helper function to quickly print data about listing.
+// this should be moved to a Listing specfic module
+func print_listing(listing Listing) {
+	fmt.Println("----------------------------")
+	fmt.Printf("ID: %d\nBairro:%s\nCE:%s\nLat:%f ; Lon:%f\nPrice(k eur):%d\nArea:%d\nRooms:%d\nPPMsqr:%f\nBairro price offset:%f\n",
+		listing.id, listing.bairro, listing.energy_rating, listing.lat, listing.lon, listing.price/1000, listing.area,
+		listing.rooms, listing.price_per_m2, listing.price_offset)
+	fmt.Println("----------------------------")
+
 }
 
 // ------------------------------------------------------
@@ -207,6 +263,14 @@ func scrape_supercasa() []Listing {
 func main() {
 	fmt.Println("Welcome to realista!")
 	listings := scrape_supercasa()
+	listings = post_processing(listings)
+	print_listing(listings[0])
+	print_listing(listings[10])
+	print_listing(listings[20])
+	print_listing(listings[30])
+	print_listing(listings[40])
+	print_listing(listings[50])
+
 	fmt.Println("Out of scrape supercasa!\n-------------------------------------------")
 	fmt.Println(listings[len(listings)-1])
 }
