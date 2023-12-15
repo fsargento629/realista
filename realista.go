@@ -43,7 +43,7 @@ func bairros2scrape() []Bairro {
 
 	// read csv file with bairro info and populate the array
 	// open file logic
-	file_name := "/home/fsargento/go/projects/realista/config_files/bairros.csv"
+	file_name := "config_files/bairros.csv"
 	file, err := os.Open(file_name)
 	if err != nil {
 		log.Fatal("Error while opening the file!!", err)
