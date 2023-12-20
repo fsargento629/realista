@@ -7,12 +7,14 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"net/http"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/gocolly/colly"
 )
 
@@ -20,12 +22,12 @@ import (
 // STRUCTS
 
 type Listing struct {
-	bairro, energy_rating, source string
-	features                      []string
-	lat, lon                      float64
-	price, area, rooms, id        uint
+	Bairro, Energy_rating, Source string
+	Features                      []string
+	Lat, Lon                      float64
+	Price, Area, Rooms, Id        uint
 	// pos processing values
-	price_per_m2, price_offset float32 // price offet is 1 if it is the same, 2 if double, etc
+	Price_per_m2, Price_offset float32 // price offet is 1 if it is the same, 2 if double, etc
 }
 
 type Bairro struct {
@@ -182,10 +184,10 @@ func scrape_supercasa() []Listing {
 
 			// Finally, append this listing to the listing list
 			listings = append(listings, Listing{
-				id: uint(id), bairro: bairro.name, features: features, source: "super_casa",
-				energy_rating: energy_rating, price: uint(propertyPriceInt),
-				rooms: uint(rooms), area: uint(area),
-				lat: latitudeF64, lon: longitudeF64})
+				Id: uint(id), Bairro: bairro.name, Features: features, Source: "super_casa",
+				Energy_rating: energy_rating, Price: uint(propertyPriceInt),
+				Rooms: uint(rooms), Area: uint(area),
+				Lat: latitudeF64, Lon: longitudeF64})
 			fmt.Println("----------------------------------------")
 		})
 		for i := 0; i < max_pages_per_bairro; i++ {
@@ -214,12 +216,12 @@ func post_processing(listings []Listing) []Listing {
 	var newListings []Listing
 	// price per area
 	for _, listing := range listings {
-		if listing.area > 0 {
-			listing.price_per_m2 = float32(listing.price / listing.area)
+		if listing.Area > 0 {
+			listing.Price_per_m2 = float32(listing.Price / listing.Area)
 			newListings = append(newListings, listing)
 		} else {
 			// remove listing if area is not positive.
-			fmt.Println("Listing " + strconv.FormatUint(uint64(listing.id), 10) + " had non-positive area")
+			fmt.Println("Listing " + strconv.FormatUint(uint64(listing.Id), 10) + " had non-positive area")
 		}
 	}
 
@@ -230,8 +232,8 @@ func post_processing(listings []Listing) []Listing {
 
 	// iterate all listing toget the total price sum for each bairro
 	for _, listing := range newListings {
-		bairro_price_sum[listing.bairro] += uint(listing.price_per_m2)
-		bairro_counters[listing.bairro]++
+		bairro_price_sum[listing.Bairro] += uint(listing.Price_per_m2)
+		bairro_counters[listing.Bairro]++
 	}
 	// divide price sums by counters to get averages
 	for bairro, price_sum := range bairro_price_sum {
@@ -241,7 +243,7 @@ func post_processing(listings []Listing) []Listing {
 
 	// iterate new listings to get price offset to neighbourhood
 	for i, listing := range newListings {
-		newListings[i].price_offset = listing.price_per_m2 / bairro_average_ppm2s[listing.bairro]
+		newListings[i].Price_offset = listing.Price_per_m2 / bairro_average_ppm2s[listing.Bairro]
 	}
 
 	return newListings
@@ -265,8 +267,8 @@ func scrape() []Listing {
 func print_listing(listing Listing) {
 	fmt.Println("----------------------------")
 	fmt.Printf("ID: %d\nBairro:%s\nCE:%s\nLat:%f ; Lon:%f\nPrice(k eur):%d\nArea:%d\nRooms:%d\nPPMsqr:%f\nBairro price offset:%f\n",
-		listing.id, listing.bairro, listing.energy_rating, listing.lat, listing.lon, listing.price/1000, listing.area,
-		listing.rooms, listing.price_per_m2, listing.price_offset)
+		listing.Id, listing.Bairro, listing.Energy_rating, listing.Lat, listing.Lon, listing.Price/1000, listing.Area,
+		listing.Rooms, listing.Price_per_m2, listing.Price_offset)
 	fmt.Println("----------------------------")
 
 }
@@ -299,16 +301,16 @@ func listings2csv(listings []Listing) {
 	// Write each listing to the CSV file
 	for _, listing := range listings {
 		row := []string{
-			fmt.Sprintf("%d", listing.id),
-			fmt.Sprintf("%d", listing.price),
-			fmt.Sprintf("%d", listing.area),
-			fmt.Sprintf("%d", listing.rooms),
-			listing.energy_rating,
-			fmt.Sprintf("%.2f", listing.price_per_m2),
-			listing.bairro,
-			fmt.Sprintf("%.2f", listing.price_offset),
-			fmt.Sprintf("%.8f", listing.lat),
-			fmt.Sprintf("%.8f", listing.lon),
+			fmt.Sprintf("%d", listing.Id),
+			fmt.Sprintf("%d", listing.Price),
+			fmt.Sprintf("%d", listing.Area),
+			fmt.Sprintf("%d", listing.Rooms),
+			listing.Energy_rating,
+			fmt.Sprintf("%.2f", listing.Price_per_m2),
+			listing.Bairro,
+			fmt.Sprintf("%.2f", listing.Price_offset),
+			fmt.Sprintf("%.8f", listing.Lat),
+			fmt.Sprintf("%.8f", listing.Lon),
 		}
 
 		err := writer.Write(row)
@@ -353,8 +355,8 @@ func csv2listings(csv_file string) []Listing {
 		lon, _ := strconv.ParseFloat(line[9], 64)
 
 		// append to listings. Should we have a step here to filter out bad parsings?
-		listing := Listing{id: uint(id), price: uint(price), area: uint(area), rooms: uint(rooms), energy_rating: line[4],
-			price_per_m2: float32(price_per_m2), bairro: line[6], price_offset: float32(price_offset), lat: lat, lon: lon}
+		listing := Listing{Id: uint(id), Price: uint(price), Area: uint(area), Rooms: uint(rooms), Energy_rating: line[4],
+			Price_per_m2: float32(price_per_m2), Bairro: line[6], Price_offset: float32(price_offset), Lat: lat, Lon: lon}
 		listings = append(listings, listing)
 	}
 
@@ -363,28 +365,31 @@ func csv2listings(csv_file string) []Listing {
 }
 
 // API function to return a random listing from the database of listings we have
-func get_random_listing(listings []Listing) Listing {
+func get_random_listing(c *gin.Context) {
 
 	rand.New(rand.NewSource(time.Now().Local().Unix()))
-	randomidx := rand.Intn(len(listings))
+	randomidx := rand.Intn(len(all_listings))
 
 	fmt.Printf("Random idx is %d\n", randomidx)
-
-	return listings[randomidx]
+	c.JSON(http.StatusOK, all_listings[randomidx]) // this is not working
 }
 
 // ------------------------------------------------------
 // MAIN
 
+// GLOBAL VARS
+var all_listings []Listing
+
 func main() {
 	fmt.Println("Welcome to realista!")
 
-	listings := csv2listings("data/current.csv")
+	all_listings = csv2listings("data/current.csv")
 
-	// test the API function here:
-	println("------------------ Testing get_random_listing API now: ------------------")
-	for i := 0; i < 10; i++ {
-		random_listing := get_random_listing(listings)
-		print_listing(random_listing)
-	}
+	// Initialize APIs
+	router := gin.Default()
+	router.GET("/rand_house", get_random_listing)
+
+	// run API
+	fmt.Println("Starting API at. Access it with  curl http://localhost:8080/rand_house")
+	router.Run("localhost:8080")
 }
