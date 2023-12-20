@@ -14,6 +14,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gocolly/colly"
 )
@@ -387,6 +388,7 @@ func main() {
 
 	// Initialize APIs
 	router := gin.Default()
+	router.Use(cors.Default())
 	router.GET("/rand_house", get_random_listing)
 
 	// run API

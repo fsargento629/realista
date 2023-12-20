@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random House Viewer</title>
+</head>
+<body>
+    <h1>Random House Viewer</h1>
+    <div id="house-info"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Fetch data from the API
+            fetch('http://localhost:8080/rand_house')
+            .then(response => response.text())
+            .then(data => {
+                console.log('API Response:', data);
+                try {
+                    const jsonData = JSON.parse(data);
+                    displayHouseInfo(jsonData);
+                } catch (error) {
+                    console.error('Error parsing JSON:', error);
+                    document.getElementById('house-info').innerText = 'Error parsing JSON. See console for details.';
+                }
+            })
+
+            function displayHouseInfo(data) {
+                // Assuming data is an object with properties like 'name', 'address', etc.
+                const houseInfoElement = document.getElementById('house-info');
+
+                // Create HTML to display the information
+                const html = `
+                    <p><strong>Name:</strong> ${data.name}</p>
+                    <p><strong>Address:</strong> ${data.address}</p>
+                    <!-- Add more properties as needed -->
+                `;
+
+                // Set the innerHTML of the houseInfoElement to the generated HTML
+                houseInfoElement.innerHTML = html;
+            }
+        });
+    </script>
+</body>
+</html>
