@@ -23,10 +23,10 @@ import (
 // STRUCTS
 
 type Listing struct {
-	Bairro, Energy_rating, Source string
-	Features                      []string
-	Lat, Lon                      float64
-	Price, Area, Rooms, Id        uint
+	Bairro, Energy_rating, Source, Url string
+	Features                           []string
+	Lat, Lon                           float64
+	Price, Area, Rooms, Id             uint
 	// pos processing values
 	Price_per_m2, Price_offset float32 // price offet is 1 if it is the same, 2 if double, etc
 }
@@ -85,6 +85,10 @@ func scrape_supercasa() []Listing {
 		c.OnHTML(".property", func(e *colly.HTMLElement) {
 			// Extract all text content within the current element
 			textContent := e.Text
+
+			// Link for listing
+			url := e.ChildAttr(".property-list-title a", "href")
+			fmt.Printf("Url: %s\n", url)
 
 			// Extract property ID
 			propertyID := e.Attr("id")
@@ -185,7 +189,7 @@ func scrape_supercasa() []Listing {
 
 			// Finally, append this listing to the listing list
 			listings = append(listings, Listing{
-				Id: uint(id), Bairro: bairro.name, Features: features, Source: "super_casa",
+				Id: uint(id), Bairro: bairro.name, Features: features, Source: "super_casa", Url: "https://supercasa.pt" + url,
 				Energy_rating: energy_rating, Price: uint(propertyPriceInt),
 				Rooms: uint(rooms), Area: uint(area),
 				Lat: latitudeF64, Lon: longitudeF64})
@@ -267,8 +271,8 @@ func scrape() []Listing {
 // this should be moved to a Listing specfic module
 func print_listing(listing Listing) {
 	fmt.Println("----------------------------")
-	fmt.Printf("ID: %d\nBairro:%s\nCE:%s\nLat:%f ; Lon:%f\nPrice(k eur):%d\nArea:%d\nRooms:%d\nPPMsqr:%f\nBairro price offset:%f\n",
-		listing.Id, listing.Bairro, listing.Energy_rating, listing.Lat, listing.Lon, listing.Price/1000, listing.Area,
+	fmt.Printf("ID: %d\nURL:%s\nBairro:%s\nCE:%s\nLat:%f ; Lon:%f\nPrice(k eur):%d\nArea:%d\nRooms:%d\nPPMsqr:%f\nBairro price offset:%f\n",
+		listing.Id, listing.Url, listing.Bairro, listing.Energy_rating, listing.Lat, listing.Lon, listing.Price/1000, listing.Area,
 		listing.Rooms, listing.Price_per_m2, listing.Price_offset)
 	fmt.Println("----------------------------")
 
@@ -292,7 +296,7 @@ func listings2csv(listings []Listing) {
 	defer writer.Flush()
 
 	// Write the header to the CSV file
-	header := []string{"id", "price", "area", "rooms", "energyRating", "pricePerM2", "bairro", "priceOffset", "lat", "lon"}
+	header := []string{"id", "price", "area", "rooms", "energyRating", "pricePerM2", "bairro", "priceOffset", "lat", "lon", "url"}
 	err = writer.Write(header)
 	if err != nil {
 		fmt.Println("Error writing CSV header:", err)
@@ -312,6 +316,7 @@ func listings2csv(listings []Listing) {
 			fmt.Sprintf("%.2f", listing.Price_offset),
 			fmt.Sprintf("%.8f", listing.Lat),
 			fmt.Sprintf("%.8f", listing.Lon),
+			listing.Url,
 		}
 
 		err := writer.Write(row)
@@ -357,7 +362,7 @@ func csv2listings(csv_file string) []Listing {
 
 		// append to listings. Should we have a step here to filter out bad parsings?
 		listing := Listing{Id: uint(id), Price: uint(price), Area: uint(area), Rooms: uint(rooms), Energy_rating: line[4],
-			Price_per_m2: float32(price_per_m2), Bairro: line[6], Price_offset: float32(price_offset), Lat: lat, Lon: lon}
+			Price_per_m2: float32(price_per_m2), Bairro: line[6], Price_offset: float32(price_offset), Lat: lat, Lon: lon, Url: line[10]}
 		listings = append(listings, listing)
 	}
 
@@ -383,6 +388,9 @@ var all_listings []Listing
 
 func main() {
 	fmt.Println("Welcome to realista!")
+
+	// all_listings = scrape()
+	// print_listing(all_listings[100])
 
 	all_listings = csv2listings("data/current.csv")
 
