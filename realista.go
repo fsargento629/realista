@@ -276,7 +276,7 @@ func listings2csv(listings []Listing) {
 	defer writer.Flush()
 
 	// Write the header to the CSV file
-	header := []string{"id", "price", "area", "rooms", "energyRating", "pricePerM2", "bairro", "priceOffset"}
+	header := []string{"id", "price", "area", "rooms", "energyRating", "pricePerM2", "bairro", "priceOffset", "lat", "lon"}
 	err = writer.Write(header)
 	if err != nil {
 		fmt.Println("Error writing CSV header:", err)
@@ -286,17 +286,16 @@ func listings2csv(listings []Listing) {
 	// Write each listing to the CSV file
 	for _, listing := range listings {
 		row := []string{
-			fmt.Sprintf(
-				"%d,%d,%d,%d,%s,%.2f,%s,%.2f",
-				listing.id,
-				listing.price,
-				listing.area,
-				listing.rooms,
-				listing.energy_rating,
-				listing.price_per_m2,
-				listing.bairro,
-				listing.price_offset,
-			),
+			fmt.Sprintf("%d", listing.id),
+			fmt.Sprintf("%d", listing.price),
+			fmt.Sprintf("%d", listing.area),
+			fmt.Sprintf("%d", listing.rooms),
+			listing.energy_rating,
+			fmt.Sprintf("%.2f", listing.price_per_m2),
+			listing.bairro,
+			fmt.Sprintf("%.2f", listing.price_offset),
+			fmt.Sprintf("%.8f", listing.lat),
+			fmt.Sprintf("%.8f", listing.lon),
 		}
 
 		err := writer.Write(row)

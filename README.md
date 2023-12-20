@@ -1,22 +1,28 @@
 # realista
-Webscraper for supercasa.pt written in go (WIP)
+
+Quizz app that prompts listings from the Lisbon house market and asks the user for the price 
+
+## Features
+
+- Webscraper for supercasa.com
+- Exports to .csv
 
 ## TODO:
 
 ### Priority
 
-- GO to csv function
-- create python environment inside realista to analyze data.
-- Python library to handle csv to pandas and the cleanup
+
+- Write the Go API. A function that collects a random question from an sql database and returns it
+- Refactor the scraper to build sql database
 
 
 
 ### Near future plans
 
-- Populate csv with all of Lisbon
-- postgresql with go as the basis for storing ALL data about house prices at each day
+- Get link from scraper as well
+- Save images (or image links from each listing)
 
 ### Long term plans
-
-- Figure out a way to store the database, and of comparing 2 databases (to get a timeline of a house)
-- Scraper for bpi and idealista as well
+- Frontend in React to call api
+- More scrapers: idealista, bpi
+- Get a cheap PC to be a server 
