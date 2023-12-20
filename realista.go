@@ -6,6 +6,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"regexp"
 	"strconv"
@@ -247,6 +248,18 @@ func post_processing(listings []Listing) []Listing {
 
 }
 
+// scrape all implemented websites and convert them to a csv
+func scrape() []Listing {
+	listings := scrape_supercasa()
+	listings = post_processing(listings)
+
+	// convert data to csv
+	listings2csv(listings) // this is working, but we dont need to always call this
+
+	return listings
+
+}
+
 // helper function to quickly print data about listing.
 // this should be moved to a Listing specfic module
 func print_listing(listing Listing) {
@@ -308,20 +321,70 @@ func listings2csv(listings []Listing) {
 	fmt.Printf("CSV file '%s' created successfully.\n", csvFileName)
 }
 
+// get the array of listings from .csv
+func csv2listings(csv_file string) []Listing {
+
+	file, err := os.Open(csv_file)
+	if err != nil {
+		log.Fatal("Error while opening the file!!", err)
+	}
+	defer file.Close()
+
+	// read the csv
+	reader := csv.NewReader(file)
+	lines, err := reader.ReadAll()
+	if err != nil {
+		log.Println("Error reading csv file!")
+	}
+
+	// convert each line to question, answer and push them to the vec
+	var listings []Listing
+	for _, line := range lines[1:] {
+		// Each line should be like:
+		//id,price,area,rooms,energyRating,pricePerM2,bairro,priceOffset,lat,lon
+
+		id, _ := strconv.ParseUint(line[0], 10, 16)
+		price, _ := strconv.ParseUint(line[1], 10, 32)
+		area, _ := strconv.ParseUint(line[2], 10, 32)
+		rooms, _ := strconv.ParseUint(line[3], 10, 32)
+		price_per_m2, _ := strconv.ParseFloat(line[5], 64)
+		price_offset, _ := strconv.ParseFloat(line[7], 64)
+		lat, _ := strconv.ParseFloat(line[8], 64)
+		lon, _ := strconv.ParseFloat(line[9], 64)
+
+		// append to listings. Should we have a step here to filter out bad parsings?
+		listing := Listing{id: uint(id), price: uint(price), area: uint(area), rooms: uint(rooms), energy_rating: line[4],
+			price_per_m2: float32(price_per_m2), bairro: line[6], price_offset: float32(price_offset), lat: lat, lon: lon}
+		listings = append(listings, listing)
+	}
+
+	fmt.Printf("Imported %d listings from %s\n", len(listings), csv_file)
+	return listings
+}
+
+// API function to return a random listing from the database of listings we have
+func get_random_listing(listings []Listing) Listing {
+
+	rand.New(rand.NewSource(time.Now().Local().Unix()))
+	randomidx := rand.Intn(len(listings))
+
+	fmt.Printf("Random idx is %d\n", randomidx)
+
+	return listings[randomidx]
+}
+
 // ------------------------------------------------------
 // MAIN
 
 func main() {
 	fmt.Println("Welcome to realista!")
-	listings := scrape_supercasa()
-	listings = post_processing(listings)
-	print_listing(listings[0])
-	print_listing(listings[10])
-	print_listing(listings[20])
-	print_listing(listings[30])
-	print_listing(listings[40])
-	print_listing(listings[50])
 
-	// convert data to csv
-	listings2csv(listings)
+	listings := csv2listings("data/current.csv")
+
+	// test the API function here:
+	println("------------------ Testing get_random_listing API now: ------------------")
+	for i := 0; i < 10; i++ {
+		random_listing := get_random_listing(listings)
+		print_listing(random_listing)
+	}
 }
