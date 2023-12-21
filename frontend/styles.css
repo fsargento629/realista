@@ -11,10 +11,13 @@ body {
 
 #game-container {
     background-color: #fff;
-    padding: 20px;
+    padding: 30px; /* Increase padding for more space */
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
+    max-width: 600px; /* You can set a maximum width if you don't want it to stretch too much */
+    width: 100%; /* Make it take up the full width of the container */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
 }
 
 #house-info {
