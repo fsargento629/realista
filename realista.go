@@ -213,6 +213,35 @@ func scrape_supercasa() []Listing {
 	return listings
 }
 
+// get the house images from a particular supercasa listing
+func scrape_supercasa_images(listing Listing) []string {
+
+	fmt.Printf("Scraping images for supercasa house %d\n", listing.Id)
+
+	var house_images []string // vector of urls with the images from this website
+
+	c := colly.NewCollector()
+
+	// Find and extract image links
+	c.OnHTML(".detail-media-list-item", func(e *colly.HTMLElement) {
+		// Extract the image source URL
+		imgSrc := e.ChildAttr("img.lazyload", "data-src")
+
+		// Print or store the extracted information
+		fmt.Printf("Image Source: %s\n", imgSrc)
+		house_images = append(house_images, imgSrc)
+		fmt.Println("----------------------------------------")
+	})
+
+	// Visit the URL of the page you want to scrape
+	err := c.Visit(listing.Url)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Scraped %d house images from %s\n", len(house_images), listing.Url)
+	return house_images
+}
+
 // add statistics to each listing
 // (price/m2, price offset to neighbourhood average (%), price offset to selection)
 // todo: this should also return the bairro data. we should have a struct for that. Maybe just reuse bairro.
@@ -269,6 +298,7 @@ func scrape() []Listing {
 
 // helper function to quickly print data about listing.
 // this should be moved to a Listing specfic module
+// example call:  scrape_supercasa_images(all_listings[600])
 func print_listing(listing Listing) {
 	fmt.Println("----------------------------")
 	fmt.Printf("ID: %d\nURL:%s\nBairro:%s\nCE:%s\nLat:%f ; Lon:%f\nPrice(k eur):%d\nArea:%d\nRooms:%d\nPPMsqr:%f\nBairro price offset:%f\n",

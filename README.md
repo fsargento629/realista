@@ -11,8 +11,7 @@ Quizz app that prompts listings from the Lisbon house market and asks the user f
 
 ### Priority
 
-- Function to scrape a listing and extract all house pictures
-
+- Figure out frontend
 
 ### Near future plans
 
