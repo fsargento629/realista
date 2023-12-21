@@ -22,7 +22,7 @@ function updateUI(data) {
     console.log(data.Rooms)
     document.getElementById('neighborhood').innerText = data.Bairro;
     console.log(data.Bairro)
-    actualPrice = data.Price
+    actualPrice = data.Price/1000
     console.log(data.Price)
 }
 
@@ -36,9 +36,9 @@ function checkPrice() {
 
     // Compare user's guess with actual price
     const resultElement = document.getElementById('result');
-    if (userGuess === actualPrice) {
+    if (Math.abs(userGuess - actualPrice) < 10) {
         resultElement.innerText = 'Congratulations! Your guess is correct!';
     } else {
-        resultElement.innerText = `Oops! Your guess is incorrect. The actual price is ${actualPrice}.`;
+        resultElement.innerText = `Oops! Your guess is incorrect. The actual price is ${actualPrice} k eur.`;
     }
 }

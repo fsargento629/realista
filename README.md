@@ -1,6 +1,6 @@
 # realista
 
-Quizz app that prompts listings from the Lisbon house market and asks the user for the price 
+Quizz app that prompts listings from the Lisbon house market and asks the user for the price
 
 ## Features
 
@@ -16,12 +16,13 @@ Quizz app that prompts listings from the Lisbon house market and asks the user f
 
 - Units in front of area
 - Capitalize bairro
-- Prompt in keur
 
 ### Near future plans
 
 - Better check_price, with a limit of tries,  an indications of how wrong you are and better condition for being correct
-- "Next house button" to keep playing 
+- "Next house button" to keep playing
+- More photos
+
 
 
 ### Long term plans
