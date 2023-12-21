@@ -24,7 +24,7 @@ import (
 
 type Listing struct {
 	Bairro, Energy_rating, Source, Url string
-	Features                           []string
+	Features, Imgs                     []string
 	Lat, Lon                           float64
 	Price, Area, Rooms, Id             uint
 	// pos processing values
@@ -405,9 +405,12 @@ func get_random_listing(c *gin.Context) {
 
 	rand.New(rand.NewSource(time.Now().Local().Unix()))
 	randomidx := rand.Intn(len(all_listings))
+	random_listing := all_listings[randomidx]
+
+	random_listing.Imgs = scrape_supercasa_images(random_listing)
 
 	fmt.Printf("Random idx is %d\n", randomidx)
-	c.JSON(http.StatusOK, all_listings[randomidx]) // this is not working
+	c.JSON(http.StatusOK, random_listing) // this is not working
 }
 
 // ------------------------------------------------------

@@ -3,43 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random House Viewer</title>
+    <title>Realista Lisboa</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Random House Viewer</h1>
-    <div id="house-info"></div>
+    <div id="game-container">
+        <h1>Guess house price</h1>
+        <div id="house-info">
+            <img id="house-image" src="" alt="House Image">
+            <p><strong>Area:</strong> <span id="area"></span></p>
+            <p><strong>Number of Rooms:</strong> <span id="rooms"></span></p>
+            <p><strong>Neighborhood:</strong> <span id="neighborhood"></span></p>
+        </div>
+        <label for="price-input">Your Guess: </label>
+        <input type="number" id="price-input" min="0" step="1">
+        <button onclick="checkPrice()">Check Price</button>
+        <p id="result"></p>
+    </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Fetch data from the API
-            fetch('http://localhost:8080/rand_house')
-            .then(response => response.text())
-            .then(data => {
-                console.log('API Response:', data);
-                try {
-                    const jsonData = JSON.parse(data);
-                    displayHouseInfo(jsonData);
-                } catch (error) {
-                    console.error('Error parsing JSON:', error);
-                    document.getElementById('house-info').innerText = 'Error parsing JSON. See console for details.';
-                }
-            })
-
-            function displayHouseInfo(data) {
-                // Assuming data is an object with properties like 'name', 'address', etc.
-                const houseInfoElement = document.getElementById('house-info');
-
-                // Create HTML to display the information
-                const html = `
-                    <p><strong>Name:</strong> ${data.name}</p>
-                    <p><strong>Address:</strong> ${data.address}</p>
-                    <!-- Add more properties as needed -->
-                `;
-
-                // Set the innerHTML of the houseInfoElement to the generated HTML
-                houseInfoElement.innerHTML = html;
-            }
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
