@@ -10,11 +10,18 @@
     <div id="game-container">
         <h1>Guess house price</h1>
         <div id="house-info">
-            <img id="house-image" src="" alt="House Image">
             <p><strong>Area:</strong> <span id="area"></span></p>
             <p><strong>Rooms:</strong> <span id="rooms"></span></p>
             <p><strong>Neighborhood:</strong> <span id="neighborhood"></span></p>
         </div>
+
+        <!-- Container for the image and navigation buttons -->
+        <div id="image-container">
+            <button onclick="showPreviousImage()">Previous</button>
+            <img id="current-image" src="" alt="House Image">
+            <button onclick="showNextImage()">Next</button>
+        </div>
+
         <label for="price-input">Your guess (k eur)</label>
         <input type="number" id="price-input" min="0" step="1">
         <button onclick="checkPrice()">Check Price</button>

@@ -3,6 +3,8 @@ let actualPrice;  // in kEur
 let guess_counter,prev_delta;
 let won_games,total_games; 
 const max_guesses = 6;
+let currentImageIndex = 0;
+let imgs;
 
 document.addEventListener("DOMContentLoaded", function () {
     fetchHouseData();
@@ -11,7 +13,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function fetchHouseData() {
     // Fetch data from your Go API
-    fetch('http://localhost:8080/rand_house')
+    const api_url = 'http://192.168.1.66:8080/rand_house';
+    //const api_url = 'http://localhost:8080/rand_house';
+ 
+    fetch(api_url)
         .then(response => response.json())
         .then(data => updateUI(data))
         .catch(error => console.error('Error fetching data:', error));
@@ -19,16 +24,32 @@ function fetchHouseData() {
 
 // Updates the UI when the page is loaded
 function updateUI(data) {
-    document.getElementById('house-image').src = data.Imgs[1]; // Assuming 'Url' is the property that contains the image URL
-    console.log(data.Imgs)
-    document.getElementById('area').innerText = `${data.Area} m²`;
-    console.log(data.Area)
-    document.getElementById('rooms').innerText = data.Rooms;
-    console.log(data.Rooms)
-    document.getElementById('neighborhood').innerText = data.Bairro.charAt(0).toUpperCase() + data.Bairro.slice(1);
-    console.log(data.Bairro)
-    actualPrice = data.Price/1000
-    console.log(data.Price)
+    // get HTML elements
+    const areaElement = document.getElementById('area');
+    const roomsElement = document.getElementById('rooms');
+    const neighborhoodElement = document.getElementById('neighborhood');
+    const currentImageElement = document.getElementById('current-image');
+
+    imgs = data.Imgs.filter(function(element){return element != "";}) // the img links vec comes with some garbage
+    
+    currentImageIndex = 0;
+    areaElement.innerText = ` ${data.Area} m²`;
+    roomsElement.innerText = `${data.Rooms}`;
+    neighborhoodElement.innerText = data.Bairro.charAt(0).toUpperCase() + data.Bairro.slice(1);
+    actualPrice = data.Price / 1000;
+
+    // Set the first image in the current-image element
+    currentImageElement.src = imgs[currentImageIndex];
+}
+
+function showNextImage() {
+    currentImageIndex = (currentImageIndex + 1) % imgs.length;
+    document.getElementById('current-image').src = imgs[currentImageIndex];
+}
+
+function showPreviousImage() {
+    currentImageIndex = (currentImageIndex - 1 + imgs.length) % imgs.length;
+    document.getElementById('current-image').src = imgs[currentImageIndex];
 }
 
 

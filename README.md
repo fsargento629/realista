@@ -12,16 +12,15 @@ Quizz app that prompts listings from the Lisbon house market and asks the user f
 
 ### Priority
 
-- More photos
-- "Next house button" to keep playing
-
-
-#### Improve frontend to be more user friendly
-
+- Next house button
+- Enter working as intended
+- Run game until you miss too many. Print the score after
 
 ### Near future plans
 
-- Better check_price, with a limit of tries,  an indications of how wrong you are and better condition for being correct
+- Several more pages: about, etc
+- Hints (they are perishable)
+- Better prompts
 
 
 
