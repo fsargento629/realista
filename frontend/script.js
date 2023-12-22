@@ -1,10 +1,12 @@
 // Global variables
 let actualPrice;  // in kEur
-let guess_counter,max_guesses,prev_guess;
-let right_guesses,total_guesses; 
+let guess_counter,prev_delta;
+let won_games,total_games; 
+const max_guesses = 6;
 
 document.addEventListener("DOMContentLoaded", function () {
     fetchHouseData();
+    guess_counter = 0;
 });
 
 function fetchHouseData() {
@@ -15,6 +17,7 @@ function fetchHouseData() {
         .catch(error => console.error('Error fetching data:', error));
 }
 
+// Updates the UI when the page is loaded
 function updateUI(data) {
     document.getElementById('house-image').src = data.Imgs[1]; // Assuming 'Url' is the property that contains the image URL
     console.log(data.Imgs)
@@ -28,24 +31,44 @@ function updateUI(data) {
     console.log(data.Price)
 }
 
+
+
 function checkPrice() {
     // Get user's guess
     const userGuess = parseInt(document.getElementById('price-input').value);
-    console.log(userGuess)
 
-    // Alternatively, you can directly use the price from the API response
-    console.log(actualPrice)
 
     // Compare user's guess with actual price
     const resultElement = document.getElementById('result');
-    const delta = Math.abs(userGuess - actualPrice)
-    if ( delta < 10) {
-        resultElement.innerText = 'Congratulations! Your guess is correct!';
-    } else if(delta < 50){
-        resultElement.innerText = 'You are close!';
-    } else {
-        resultElement.innerText = 'Oof nowhere near!';
-    }
+    const delta = Math.abs(userGuess - actualPrice);
+    console.log(actualPrice); // just for debug, delete this
 
-    // resultElement.innerText = `Oops! Your guess is incorrect. The actual price is ${actualPrice} k eur.`;
+
+    // These conditionals are a mess, there must be a better way... REFACTOR
+    if ( delta == 0) {
+        resultElement.innerText = 'Spot on!';
+    } else if (delta < 20){
+        resultElement.innerText = `Close enough! The actual price is ${actualPrice}`;
+    } else if(guess_counter >= max_guesses -1){
+        resultElement.innerText = `You missed too many tries! The actual price was ${actualPrice}`;
+    } else if(guess_counter == 0){
+        if(delta < 100) {
+            resultElement.innerText = 'Warm';           
+        } else {
+            resultElement.innerText = 'Cold';
+        }
+    } else {
+        if(prev_delta < delta) {
+            resultElement.innerText = 'Colder...';
+        }
+        else if(prev_delta > delta) {
+            resultElement.innerText = 'Warmer...';
+        }
+        else {
+            resultElement.innerText = 'Change the guess!!';
+            return
+        }
+    }
+    guess_counter++;
+    prev_delta = delta;
 }

@@ -12,8 +12,7 @@ Quizz app that prompts listings from the Lisbon house market and asks the user f
 
 ### Priority
 
-- Check price function refactor: make it have a limit, and a colder/warmer indicator. 
-- Also, had a better sucess message (close enough, woow spot on) with the real value after it
+- More photos
 - "Next house button" to keep playing
 
 
@@ -23,7 +22,6 @@ Quizz app that prompts listings from the Lisbon house market and asks the user f
 ### Near future plans
 
 - Better check_price, with a limit of tries,  an indications of how wrong you are and better condition for being correct
-- More photos
 
 
 
