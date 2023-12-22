@@ -12,15 +12,17 @@ Quizz app that prompts listings from the Lisbon house market and asks the user f
 
 ### Priority
 
+- Check price function refactor: make it have a limit, and a colder/warmer indicator. 
+- Also, had a better sucess message (close enough, woow spot on) with the real value after it
+- "Next house button" to keep playing
+
+
 #### Improve frontend to be more user friendly
 
-- Units in front of area
-- Capitalize bairro
 
 ### Near future plans
 
 - Better check_price, with a limit of tries,  an indications of how wrong you are and better condition for being correct
-- "Next house button" to keep playing
 - More photos
 
 
