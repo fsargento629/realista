@@ -434,5 +434,5 @@ func main() {
 
 	// run API
 	fmt.Println("Starting API at. Access it with  curl http://localhost:8080/rand_house")
-	router.Run("localhost:8080")
+	router.Run("0.0.0.0:8080")
 }
