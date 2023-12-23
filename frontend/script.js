@@ -10,6 +10,14 @@ let imgs;
 document.addEventListener("DOMContentLoaded", function () {
     fetchHouseData();
     guess_counter = 0;
+
+    // Event listener for the "Enter" key in the price-input field
+    const priceInput = document.getElementById('price-input');
+    priceInput.addEventListener('keyup', function (event) {
+        if (event.key === 'Enter') {
+            checkPrice();
+        }
+    });
 });
 
 function fetchHouseData() {
