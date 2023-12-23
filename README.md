@@ -18,6 +18,7 @@ Quizz app that prompts listings from the Lisbon house market and asks the user f
 
 ### Near future plans
 
+- Scrape address as well (using lat and lon)
 - Several more pages: about, etc
 - Hints (they are perishable)
 - Better prompts
