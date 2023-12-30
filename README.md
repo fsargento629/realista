@@ -19,6 +19,7 @@ Quizz app that prompts listings from the Lisbon house market and asks the user f
 ### Near future plans
 
 - Scrape address as well (using lat and lon)
+- Make it a price is right kind of game
 - Several more pages: about, etc
 - Hints (they are perishable)
 - Better prompts
@@ -29,4 +30,4 @@ Quizz app that prompts listings from the Lisbon house market and asks the user f
 
 - More scrapers: idealista, bpi
 - Get a cheap PC to be a server (Ihave already bought www.realista.pt)
-- Or maybe deploy it to heroku ?
+- make it multiplayer. Not sure how.
