@@ -423,7 +423,6 @@ func main() {
 	fmt.Println("Welcome to realista!")
 
 	// all_listings = scrape()
-	// print_listing(all_listings[100])
 
 	all_listings = csv2listings("data/current.csv")
 
