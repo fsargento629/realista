@@ -91,6 +91,9 @@ function updateUI(data) {
 
     // Set the first image in the current-image element
     currentImageElement.src = imgs[currentImageIndex];
+
+    // clear all guess bars to prepare for the new round
+    clearGuessBars();
 }
 
 
@@ -107,31 +110,39 @@ function checkPrice() {
 
     // These conditionals are a mess, there must be a better way... REFACTOR
     if ( delta == 0) {
+        addGuessBar(userGuess,'Correto');
         resultElement.innerHTML = `Spot on!!  <a href="${house_link}"> Check the house here!</a>`;
         roundOver();
         won_games++
 
     } else if (delta < 20){
+        addGuessBar(userGuess,'Correto');
         resultElement.innerHTML = `Close enough! The actual price is ${actualPrice} <a href="${house_link}"> Check the house here!</a>`;
         roundOver();
         won_games++
     } else if(guess_counter >= max_guesses -1){
+        addGuessBar(userGuess,'Too many errors');
         resultElement.innerHTML = `You missed too many times! The actual price was ${actualPrice} <a href="${house_link}"> Check the house here!</a>`;
         const nextHouseButton = document.getElementById('next-house-button');
         nextHouseButton.style.display = 'block';  // Show the button
         roundOver();
     } else if(guess_counter == 0){
         if(delta < (actualPrice / 5)) { // tune this value!
-            resultElement.innerText = 'Warm';           
+            resultElement.innerText = 'Warm'; 
+            addGuessBar(userGuess,'Quente');          
         } else {
             resultElement.innerText = 'Cold';
+            addGuessBar(userGuess,'Frio')
         }
     } else {
         if(prev_delta < delta) {
             resultElement.innerText = 'Colder...';
+            addGuessBar(userGuess,'Mais frio');
+
         }
         else if(prev_delta > delta) {
             resultElement.innerText = 'Warmer...';
+            addGuessBar(userGuess,'Mais quente');
         }
         else {
             resultElement.innerText = 'Change the guess!!';
@@ -149,4 +160,32 @@ function roundOver(){
     total_games++;
     guess_counter = 0;
 
+}
+
+//  to create and add a new guess bar
+function addGuessBar(userGuess, hintString) {
+    const guessBarsContainer = document.getElementById('guess-bars-container');
+
+    // Create new elements for the guess bar
+    const guessBar = document.createElement('div');
+    guessBar.classList.add('guess-bar');
+
+    const userGuessElement = document.createElement('p');
+    userGuessElement.textContent = `${userGuess}`;
+
+    const hintElement = document.createElement('p');
+    hintElement.textContent = hintString;
+
+    // Append elements to the guess bar
+    guessBar.appendChild(userGuessElement);
+    guessBar.appendChild(hintElement);
+
+    // Append the guess bar to the container
+    guessBarsContainer.appendChild(guessBar);
+}
+
+// clear all guess bars
+function clearGuessBars() {
+    const guessBarsContainer = document.getElementById('guess-bars-container');
+    guessBarsContainer.innerHTML = ''; // Remove all content inside the container
 }
