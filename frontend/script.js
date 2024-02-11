@@ -50,6 +50,9 @@ function updateUI(data) {
 
     // Set the first image in the current-image element
     currentImageElement.src = imgs[currentImageIndex];
+
+    // clear all guess bars to prepare for the new round
+    clearGuessBars();
 }
 
 function showNextImage() {
@@ -73,28 +76,6 @@ function nextHouse(){
 }
 
 
-// Updates the UI when the page is loaded
-function updateUI(data) {
-    // get HTML elements
-    const areaElement = document.getElementById('area');
-    const roomsElement = document.getElementById('rooms');
-    const neighborhoodElement = document.getElementById('neighborhood');
-    const currentImageElement = document.getElementById('current-image');
-    // debug message
-
-    imgs = data.Imgs.filter(function(element){return element != "";}) // the img links vec comes with some garbage
-    
-    currentImageIndex = 0;
-    areaElement.innerText = ` ${data.Area} m²`;
-    actualPrice = data.Price / 1000;
-    house_link = data.Url;
-
-    // Set the first image in the current-image element
-    currentImageElement.src = imgs[currentImageIndex];
-
-    // clear all guess bars to prepare for the new round
-    clearGuessBars();
-}
 
 
 
