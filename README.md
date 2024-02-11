@@ -12,6 +12,7 @@ Quizz app that prompts listings from the Lisbon house market and asks the user f
 
 ### Priority
 
+- Chamge check price function. There should be wordle like visual. for each try a line should added with the attempt value, and if it is colder or warmer (the first one should say higher/ lower)
 - Refactor game into a short 5 round game (configurable). At the end the game chnages into ther resulrts screen
 - Results screen that shows your score 
 - Welcome screen that lets you select the number of rounds and the neighbourhoods, and also the difficulty
