@@ -53,6 +53,9 @@ function updateUI(data) {
 
     // clear all guess bars to prepare for the new round
     clearGuessBars();
+
+    // clear the result textbox
+    document.getElementById('result').innerText = '';
 }
 
 function showNextImage() {
@@ -91,13 +94,13 @@ function checkPrice() {
 
     // These conditionals are a mess, there must be a better way... REFACTOR
     if ( delta == 0) {
-        addGuessBar(userGuess,'Correto');
+        addGuessBar(userGuess,'Correto!!');
         resultElement.innerHTML = `Spot on!!  <a href="${house_link}"> Check the house here!</a>`;
         roundOver();
         won_games++
 
     } else if (delta < 20){
-        addGuessBar(userGuess,'Correto');
+        addGuessBar(userGuess,'Correto!!');
         resultElement.innerHTML = `Close enough! The actual price is ${actualPrice} <a href="${house_link}"> Check the house here!</a>`;
         roundOver();
         won_games++
@@ -109,15 +112,12 @@ function checkPrice() {
         roundOver();
     } else if(guess_counter == 0){
         if(delta < (actualPrice / 5)) { // tune this value!
-            resultElement.innerText = 'Warm'; 
             addGuessBar(userGuess,'Quente');          
         } else {
-            resultElement.innerText = 'Cold';
             addGuessBar(userGuess,'Frio')
         }
     } else {
         if(prev_delta < delta) {
-            resultElement.innerText = 'Colder...';
             addGuessBar(userGuess,'Mais frio');
 
         }
@@ -132,6 +132,9 @@ function checkPrice() {
     }
     guess_counter++;
     prev_delta = delta;
+
+    // clean the input textbox
+    document.getElementById('price-input').value = ''; 
 }
 
 
