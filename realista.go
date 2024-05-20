@@ -420,18 +420,30 @@ func get_random_listing(c *gin.Context) {
 var all_listings []Listing
 
 func main() {
+
+	var scraping bool = false
+	var run_api = true
+
 	fmt.Println("Welcome to realista!")
+	if scraping == true {
+		fmt.Println("Scraping data from supercasa.pt")
+		all_listings = scrape()
+	}else {
+		all_listings = csv2listings("data/current.csv")
+	}
 
-	// all_listings = scrape()
+	if run_api == true {
+		fmt.Println("Initializing realista API")
 
-	all_listings = csv2listings("data/current.csv")
+		// Initialize APIs
+		router := gin.Default()
+		router.Use(cors.Default())
+		router.GET("/rand_house", get_random_listing)
 
-	// Initialize APIs
-	router := gin.Default()
-	router.Use(cors.Default())
-	router.GET("/rand_house", get_random_listing)
-
-	// run API
-	fmt.Println("Starting API at. Access it with  curl http://localhost:8080/rand_house")
-	router.Run("0.0.0.0:8080")
+		// run API
+		fmt.Println("Starting API at. Access it with  curl http://localhost:8080/rand_house")
+		router.Run("0.0.0.0:8080")
+	} else {
+		fmt.Println("API is not running because run_api is set to false.")
+	}
 }
